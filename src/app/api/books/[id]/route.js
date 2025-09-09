@@ -1,33 +1,37 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Book from "@/models/Book";
-import mongoose from "mongoose";
+import { ObjectId } from "mongodb"; // ✅ FIX
 
-export const dynamic = "force-dynamic"; // ⬅️ put this at the top of [id]/route.js
+export async function GET(_req, { params }) {
+  const { id } = params;
 
-
-export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = params;
-    let book;
+    let book = null;
 
-    if (mongoose.Types.ObjectId.isValid(id)) {
+    if (ObjectId.isValid(id)) {
       book = await Book.findById(id);
     } else {
       book = await Book.findOne({
-        $or: [{ slug: id }, { pdfFile: id }],
+        $or: [{ pdfFile: id }, { slug: id }, { _id: id }],
       });
     }
 
     if (!book) {
-      return NextResponse.json({ error: `Book not found (id: ${id})` }, { status: 404 });
+      return NextResponse.json(
+        { error: `Book not found (id: ${id})` },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(book);
   } catch (err) {
-    console.error("❌ [id]/route.js error:", err);
-    return NextResponse.json({ error: "Failed to fetch book", details: err.message }, { status: 500 });
+    console.error("GET /api/books/[id] error:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch book", details: err.message },
+      { status: 500 }
+    );
   }
 }
