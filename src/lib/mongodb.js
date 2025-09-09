@@ -1,23 +1,28 @@
-import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-const uri = process.env.MONGODB_URI;
-if (!uri) {
-  throw new Error("Please set MONGODB_URI in .env.local");
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  throw new Error("⚠️ Please define the MONGODB_URI environment variable inside .env.local");
 }
 
-const options = {};
-let client;
-let clientPromise;
+let cached = global.mongoose;
 
-if (process.env.NODE_ENV === "development") {
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function dbConnect() {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      dbName: process.env.MONGODB_DB || "islamic-library", // ✅ here you set DB name
+    }).then((mongoose) => mongoose);
   }
-  clientPromise = global._mongoClientPromise;
-} else {
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+
+  cached.conn = await cached.promise;
+  return cached.conn;
 }
 
-export default clientPromise; // ✅ default export
+export default dbConnect;
