@@ -1,21 +1,20 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";   // ✅ use dbConnect
-import Book from "@/models/Book";        // ✅ you must have a Book model defined
-import { ObjectId } from "mongodb";
+import dbConnect from "@/lib/mongodb";
+import Book from "@/models/Book";
+import mongoose from "mongoose";
 
-export async function GET(_req, { params }) {
-  const { id } = params;
-
+export async function GET(request, { params }) {
   try {
-    await dbConnect(); // connect once
+    await dbConnect();
 
-    let book = null;
+    const { id } = params;
+    let book;
 
-    if (ObjectId.isValid(id)) {
+    if (mongoose.Types.ObjectId.isValid(id)) {
       book = await Book.findById(id);
     } else {
       book = await Book.findOne({
-        $or: [{ pdfFile: id }, { slug: id }, { _id: id }],
+        $or: [{ slug: id }, { pdfFile: id }],
       });
     }
 
@@ -25,7 +24,7 @@ export async function GET(_req, { params }) {
 
     return NextResponse.json(book);
   } catch (err) {
-    console.error("GET /api/books/[id] error:", err);
+    console.error("❌ [id]/route.js error:", err);
     return NextResponse.json({ error: "Failed to fetch book", details: err.message }, { status: 500 });
   }
 }
