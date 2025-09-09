@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
-import "@/app/globals.css";
+
 
 function isValidHexObjectId(id) {
   return ObjectId.isValid(id) && String(new ObjectId(id)) === id;
