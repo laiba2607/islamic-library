@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "tailwindcss";
+
+
+/* Custom theme */
+:root {
+  --background: #ffffff;
+  --foreground: #212121;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #212121;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+--background: #212121;
+    --foreground: #ededed;
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0%;
+  margin-top: 0%;
+  position: sticky;
+  /* top: 0;
+   z-index: 1000;
+    width: 100%; */
+}
+#fornav{
+  /* background-color: #4CAF50; */
+  background-color: #0e3e4b;
+  /* #28712a */
+  padding: 10px;
+  top: 0;
+  margin-top: 0%;
+  text-align: center;
+  position: sticky;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  /* font-family: "Style Script", cursive;
+  font-weight: 400;
+  font-style: normal; */
+
+}
+#forbook{
+  padding: 30px;
+  font-size: large;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+#forhadees{
+  /* background-color: #0e4b10 #0e3e4b; */
+  background-color: #0e3e4b;
+  font-size: 20px;
+}
+#forbtn{
+background-color: #0e3e4b;
+}
