@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"; // ⬅️ put this at the top of [id]/route.js
+
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Book from "@/models/Book";
