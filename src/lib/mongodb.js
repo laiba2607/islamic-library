@@ -6,7 +6,7 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB || "islamic-library");
 
-    console.log("✅ Connected to DB:", db.islamic-library);
+    console.log("✅ Connected to DB:", db.databaseName);
 
     const books = await db
       .collection("books")
