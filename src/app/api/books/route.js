@@ -6,7 +6,6 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB);
 
-    // ✅ match your collection exactly → "books"
     const books = await db.collection("books").find({}).toArray();
 
     if (!books || books.length === 0) {
