@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
-
+import dbConnect from "@/lib/mongodb";
+import Book from "@/models/Book";
 export async function GET() {
   try {
     const client = await clientPromise;
