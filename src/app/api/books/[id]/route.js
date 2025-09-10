@@ -1,37 +1,23 @@
+import clientPromise from "@/lib/mongodb";
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Book from "@/models/Book";
-import { ObjectId } from "mongodb"; // ✅ FIX
+import { ObjectId } from "mongodb";
 
-export async function GET(_req, { params }) {
-  const { id } = params;
-
+export async function GET(req, { params }) {
   try {
-    await dbConnect();
+    const client = await clientPromise;
+    const db = client.db(process.env.MONGODB_DB);
 
-    let book = null;
-
-    if (ObjectId.isValid(id)) {
-      book = await Book.findById(id);
-    } else {
-      book = await Book.findOne({
-        $or: [{ pdfFile: id }, { slug: id }, { _id: id }],
-      });
-    }
+    const book = await db.collection("books").findOne({
+      _id: new ObjectId(params.id),
+    });
 
     if (!book) {
-      return NextResponse.json(
-        { error: `Book not found (id: ${id})` },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "❌ Book not found" }, { status: 404 });
     }
 
     return NextResponse.json(book);
   } catch (err) {
-    console.error("GET /api/books/[id] error:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch book", details: err.message },
-      { status: 500 }
-    );
+    console.error("❌ Error in GET /api/books/[id]:", err);
+    return NextResponse.json({ error: "Failed to fetch book" }, { status: 500 });
   }
 }
