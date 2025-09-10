@@ -1,20 +1,21 @@
-export const dynamic = "force-dynamic"; // ✅ prevents build errors
-
+import clientPromise from "@/lib/mongodb";
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Book from "@/models/Book";
 
 export async function GET() {
   try {
-    await dbConnect();
-    console.log("✅ Connected to DB"); // debug log
+    const client = await clientPromise;
+    const db = client.db(process.env.MONGODB_DB);
 
-    const books = await Book.find({}, "title author language year pdfFile slug");
-    console.log("📚 Books found:", books); // debug log
+    // ✅ match your collection exactly → "books"
+    const books = await db.collection("books").find({}).toArray();
+
+    if (!books || books.length === 0) {
+      return NextResponse.json({ message: "❌ No books found." }, { status: 404 });
+    }
 
     return NextResponse.json(books);
   } catch (err) {
-    console.error("❌ GET /api/books error:", err);
-    return NextResponse.json({ error: "Failed to fetch books", details: err.message }, { status: 500 });
+    console.error("❌ Error in GET /api/books:", err);
+    return NextResponse.json({ error: "Failed to fetch books" }, { status: 500 });
   }
 }
