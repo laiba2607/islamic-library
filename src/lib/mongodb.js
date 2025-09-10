@@ -1,28 +1,27 @@
-import mongoose from "mongoose";
+import { NextResponse } from "next/server";
+import clientPromise from "@/lib/mongodb";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+export async function GET() {
+  try {
+    const client = await clientPromise;
+    const db = client.db(process.env.MONGODB_DB || "islamic-library");
 
-if (!MONGODB_URI) {
-  throw new Error("⚠️ Please define the MONGODB_URI environment variable inside .env.local");
-}
+    console.log("✅ Connected to DB:", db.islamic-library);
 
-let cached = global.mongoose;
+    const books = await db
+      .collection("books")
+      .find({}, { projection: { title: 1, author: 1, language: 1, year: 1, pdfFile: 1 } })
+      .toArray();
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+    console.log("📚 Books found:", books.length);
 
-async function dbConnect() {
-  if (cached.conn) return cached.conn;
+    if (books.length === 0) {
+      return NextResponse.json({ error: "No books found in collection" }, { status: 404 });
+    }
 
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
-      dbName: process.env.MONGODB_DB || "islamic-library", // ✅ here you set DB name
-    }).then((mongoose) => mongoose);
+    return NextResponse.json(books);
+  } catch (err) {
+    console.error("❌ GET /api/books error:", err);
+    return NextResponse.json({ error: "Failed to fetch books", details: err.message }, { status: 500 });
   }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
 }
-
-export default dbConnect;
